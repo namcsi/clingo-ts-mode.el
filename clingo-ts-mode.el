@@ -36,4 +36,158 @@
 
 (provide 'clingo-ts-mode)
 
+
+(define-derived-mode clingo-ts-mode prog-mode "Clingo"
+  "A mode for the clingo programming language."
+  (when (treesit-ready-p 'clingo)
+    (setq-local
+      treesit-font-lock-settings
+      (treesit-font-lock-rules
+        :language 'clingo
+	:feature 'preprocessor
+	'(["#minimize"
+	   "#minimise"
+	   "#maximize"
+	   "#maximise"
+	   "#edge"
+	   "#heuristic"
+	   "#project"
+	   "#show"
+	   "#defined"
+	   "#external"
+	   "#include"
+	   "#const"
+	   "#script"
+	   "#end"
+	   "#theory"
+	   "#program"
+	   ] @font-lock-preprocessor-face)
+
+	:language 'clingo
+	:feature 'keyword
+	'([(default_negation)
+	   (double_default_negation)
+	   (aggregate_function)
+	   (theory_atom_type)
+	   (const_type)
+	   (theory_operator_arity)
+	   (theory_operator_associativity)
+	   ] @font-lock-keyword-face
+	   (script language: (identifier) @font-lock-keyword-face))
+
+	:language 'clingo
+	:feature 'type
+	'((theory
+	   name: (identifier) @font-lock-type-face)
+	  (theory_atom_definition
+	    theory_term_name: (identifier) @font-lock-type-face
+	    guard: (identifier) :? @font-lock-type-face)
+	  (theory_term_definition
+	    name: (identifier) @font-lock-type-face))
+
+	:language 'clingo
+	:feature 'function
+	'((theory_atom_definition "&" @font-lock-function-name-face)
+	  (theory_atom_definition
+	   name: (identifier) @font-lock-function-name-face)
+	  (theory_atom "&" @font-lock-function-name-face)
+	  (theory_atom
+	   name: (identifier) @font-lock-function-name-face))
+
+	:language 'clingo
+	:feature 'comment
+	'([(line_comment)
+	   (block_comment)
+	   (doc_comment)
+	  ] @font-lock-comment-face)
+
+	:language 'clingo
+	:feature 'punctuation
+	'([";"
+	   ","
+	   "."
+	   ":-"
+	   ":~"
+	   ":"
+	   (lone_comma)
+	  ] @font-lock-delimiter-face
+	  (disjunction "|" @font-lock-delimiter-face)
+	  (weight "@" @font-lock-delimiter-face)
+	  (signature "/" @font-lock-delimiter-face)
+	  (theory_atom_definition "/" @font-lock-delimiter-face)
+	  ["("
+	   ")"
+	   "{"
+	   "}"
+	   "["
+	   "]"
+	   ] @font-lock-bracket-face
+	  )
+
+	:language 'clingo
+	:feature 'operator
+	'([".."
+	   "^"
+	   "?"
+	   "+"
+	   "-"
+	   "*"
+	   "\\"
+	   "**"
+	   "~"
+	   (theory_operator)
+	   (relation)
+	  ] @font-lock-operator-face
+	  (abs "|" @font-lock-operator-face)
+	  (binary_operation "/" @font-lock-operator-face)
+	  (binary_operation "&" @font-lock-operator-face)
+	  (unary_operation "-" @font-lock-operator-face)
+	  (const "=" @font-lock-operator-face))
+
+	:language 'clingo
+	:feature 'string
+	'((string) @font-lock-string-face
+	  (fstring) @font-lock-string-face
+	  (escape_sequence) @font-lock-escape-face)
+
+	:language 'clingo
+	:feature 'number
+	'((number) @font-lock-number-face)
+
+	:language 'clingo
+	:feature 'constant
+	'((supremum) @font-lock-constant-face
+	  (infimum) @font-lock-constant-face
+	  (const
+	    name: (identifier) @font-lock-constant-face)
+	  (program
+	    parameters: (parameters (identifier) @font-lock-constant-face))
+	  (function
+	    name: (identifier) @font-lock-constant-face)
+	  (theory_function
+	    name: (identifier) @font-lock-constant-face)
+	  (external_function
+	    "@" @font-lock-constant-face
+	    name: (identifier) @font-lock-constant-face)
+	  )
+
+	;; :language 'clingo
+	;; :feature 'function
+	;; '()
+	)
+      treesit-font-lock-feature-list
+      '((preprocessor
+	 type
+	 keyword
+	 function
+	 comment
+	 punctuation
+	 operator
+	 string
+	 number
+	 constant) ; level 1
+	)
+    )
+    (treesit-major-mode-setup)))
+
 ;;; clingo-ts-mode.el ends here

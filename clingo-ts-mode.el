@@ -61,7 +61,11 @@
 	   "#end"
 	   "#theory"
 	   "#program"
-	   ] @font-lock-preprocessor-face)
+	   ] @font-lock-preprocessor-face
+	   (include
+	     (identifier) @font-lock-preprocessor-face)
+	   (program
+	     name: (identifier) @font-lock-preprocessor-face))
 
 	:language 'clingo
 	:feature 'keyword
@@ -171,10 +175,111 @@
 	    name: (identifier) @font-lock-constant-face)
 	  )
 
-	;; :language 'clingo
-	;; :feature 'function
-	;; '()
-	)
+	:language 'clingo
+	:feature 'variable
+	'([(variable)
+	   (anonymous)
+	  ] @font-lock-variable-name-face)
+
+	:language 'clingo
+	:feature 'function
+	'(;; atom definitions
+	  (rule
+	    head: (literal
+	      !sign
+	      atom: (symbolic_atom
+		     ((classical_negation) :? (identifier)) @font-lock-function-name-face)))
+	  (disjunction
+	    (literal
+	      !sign
+	      atom: (symbolic_atom
+		     ((classical_negation) :? (identifier)) @font-lock-function-name-face)))
+	  (disjunction
+	    (conditional_literal
+	      literal: (literal
+		!sign
+		atom: (symbolic_atom
+		     ((classical_negation) :? (identifier)) @font-lock-function-name-face))))
+	  (head_aggregate_element
+	    literal: (literal
+	      !sign
+	      atom: (symbolic_atom
+		     ((classical_negation) :? (identifier)) @font-lock-function-name-face)))
+	  (rule
+	    head: (set_aggregate
+	      elements: (set_aggregate_elements
+		(set_aggregate_element
+		  literal: (literal
+		    !sign
+		    atom: (symbolic_atom
+		     ((classical_negation) :? (identifier)) @font-lock-function-name-face))))))
+	  (external
+	    atom: (symbolic_atom
+		     ((classical_negation) :? (identifier)) @font-lock-function-name-face))
+	  ;; atom references
+	  (rule
+	    head: (literal
+	      sign: (_)
+	      atom: (symbolic_atom
+		     ((classical_negation) :? (identifier)) @font-lock-function-call-face)))
+	  (disjunction
+	    (literal
+	      sign: (_)
+	      atom: (symbolic_atom
+		     ((classical_negation) :? (identifier)) @font-lock-function-call-face)))
+	  (disjunction
+	    (conditional_literal
+	      literal: (literal
+		sign: (_)
+		atom: (symbolic_atom
+		     ((classical_negation) :? (identifier)) @font-lock-function-call-face))))
+	  (head_aggregate_element
+	    literal: (literal
+	      sign: (_)
+	      atom: (symbolic_atom
+		     ((classical_negation) :? (identifier)) @font-lock-function-call-face)))
+	  (rule
+	    head: (set_aggregate
+	      elements: (set_aggregate_elements
+		(set_aggregate_element
+		  literal: (literal
+		    sign: (_)
+		    atom: (symbolic_atom
+		     ((classical_negation) :? (identifier)) @font-lock-function-call-face))))))
+	  (body_literal
+	    atom: (symbolic_atom
+		     ((classical_negation) :? (identifier)) @font-lock-function-call-face))
+	  (body
+	    (conditional_literal
+	      literal: (literal
+		atom: (symbolic_atom
+		     ((classical_negation) :? (identifier)) @font-lock-function-call-face))))
+	  (body_literal
+	    atom: (set_aggregate
+	      elements: (set_aggregate_elements
+		(set_aggregate_element
+		  literal: (literal
+		    atom: (symbolic_atom
+		     ((classical_negation) :? (identifier)) @font-lock-function-call-face))))))
+	  (condition
+	    (literal
+	      atom: (symbolic_atom
+		     ((classical_negation) :? (identifier)) @font-lock-function-call-face)))
+	  (project_atom
+	    atom: (symbolic_atom
+		     ((classical_negation) :? (identifier)) @font-lock-function-call-face))
+	  (heuristic
+	    atom: (symbolic_atom
+		     ((classical_negation) :? (identifier)) @font-lock-function-call-face))
+
+	  (signature
+	    sign: (classical_negation) :? @font-lock-function-call-face
+	    name: (identifier) @font-lock-function-call-face))
+
+      	:language 'clingo
+	:feature 'builtin
+	'((boolean_constant) @font-lock-builtin-face))
+
       treesit-font-lock-feature-list
       '((preprocessor
 	 type
@@ -185,7 +290,11 @@
 	 operator
 	 string
 	 number
-	 constant) ; level 1
+	 constant
+	 variable
+	 function
+	 builtin
+	 ) ; level 1
 	)
     )
     (treesit-major-mode-setup)))

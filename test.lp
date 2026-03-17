@@ -1,3 +1,7 @@
+#include <a>.
+#include "a.lp".
+#program a(k).
+
 #theory a {}.
 
 not a(#inf, @f(1)).
@@ -23,12 +27,14 @@ a :- not b(d("asd")).
 }.
 
 #script (python)
-
+a = 1 + 1
 #end.
 
 &op{}.
 
 #const a = 1.
+
+a(X) :- b(X,_).
 
 %* this is a comment *%
 %this is a comment

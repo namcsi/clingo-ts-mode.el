@@ -60,12 +60,10 @@
 	   "#script"
 	   "#end"
 	   "#theory"
-	   "#program"
-	   ] @font-lock-preprocessor-face
-	   (include
-	     (identifier) @font-lock-preprocessor-face)
-	   (program
-	     name: (identifier) @font-lock-preprocessor-face))
+	   "#program"]
+	  @font-lock-preprocessor-face
+	  (include (identifier) @font-lock-preprocessor-face)
+	  (program name: (identifier) @font-lock-preprocessor-face))
 
 	:language 'clingo
 	:feature 'keyword
@@ -75,9 +73,9 @@
 	   (theory_atom_type)
 	   (const_type)
 	   (theory_operator_arity)
-	   (theory_operator_associativity)
-	   ] @font-lock-keyword-face
-	   (script language: (identifier) @font-lock-keyword-face))
+	   (theory_operator_associativity)]
+	  @font-lock-keyword-face
+	  (script language: (identifier) @font-lock-keyword-face))
 
 	:language 'clingo
 	:feature 'type
@@ -102,8 +100,8 @@
 	:feature 'comment
 	'([(line_comment)
 	   (block_comment)
-	   (doc_comment)
-	  ] @font-lock-comment-face)
+	   (doc_comment)]
+	  @font-lock-comment-face)
 
 	:language 'clingo
 	:feature 'punctuation
@@ -113,8 +111,8 @@
 	   ":-"
 	   ":~"
 	   ":"
-	   (lone_comma)
-	  ] @font-lock-delimiter-face
+	   (lone_comma)]
+	  @font-lock-delimiter-face
 	  (disjunction "|" @font-lock-delimiter-face)
 	  (weight "@" @font-lock-delimiter-face)
 	  (signature "/" @font-lock-delimiter-face)
@@ -124,8 +122,8 @@
 	   "{"
 	   "}"
 	   "["
-	   "]"
-	   ] @font-lock-bracket-face
+	   "]"]
+	  @font-lock-bracket-face
 	  )
 
 	:language 'clingo
@@ -141,7 +139,8 @@
 	   "~"
 	   (theory_operator)
 	   (relation)
-	  ] @font-lock-operator-face
+	  ]
+	  @font-lock-operator-face
 	  (abs "|" @font-lock-operator-face)
 	  (binary_operation "/" @font-lock-operator-face)
 	  (binary_operation "&" @font-lock-operator-face)
@@ -162,14 +161,10 @@
 	:feature 'constant
 	'((supremum) @font-lock-constant-face
 	  (infimum) @font-lock-constant-face
-	  (const
-	    name: (identifier) @font-lock-constant-face)
-	  (program
-	    parameters: (parameters (identifier) @font-lock-constant-face))
-	  (function
-	    name: (identifier) @font-lock-constant-face)
-	  (theory_function
-	    name: (identifier) @font-lock-constant-face)
+	  (const name: (identifier) @font-lock-constant-face)
+	  (program parameters: (parameters (identifier) @font-lock-constant-face))
+	  (function name: (identifier) @font-lock-constant-face)
+	  (theory_function name: (identifier) @font-lock-constant-face)
 	  (external_function
 	    "@" @font-lock-constant-face
 	    name: (identifier) @font-lock-constant-face)
@@ -178,8 +173,8 @@
 	:language 'clingo
 	:feature 'variable
 	'([(variable)
-	   (anonymous)
-	  ] @font-lock-variable-name-face)
+	   (anonymous)]
+	  @font-lock-variable-name-face)
 
 	:language 'clingo
 	:feature 'function
@@ -271,7 +266,6 @@
 	  (heuristic
 	    atom: (symbolic_atom
 		     ((classical_negation) :? (identifier)) @font-lock-function-call-face))
-
 	  (signature
 	    sign: (classical_negation) :? @font-lock-function-call-face
 	    name: (identifier) @font-lock-function-call-face))
@@ -281,21 +275,10 @@
 	'((boolean_constant) @font-lock-builtin-face))
 
       treesit-font-lock-feature-list
-      '((preprocessor
-	 type
-	 keyword
-	 function
-	 comment
-	 punctuation
-	 operator
-	 string
-	 number
-	 constant
-	 variable
-	 function
-	 builtin
-	 ) ; level 1
-	)
+      '((preprocessor comment keyword)
+	(function builtin)
+	(string number constant variable)
+	(operator punctuation type))
     )
     (treesit-major-mode-setup)))
 

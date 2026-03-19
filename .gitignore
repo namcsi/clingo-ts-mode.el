@@ -49,5 +49,8 @@ flycheck_*.el
 
 # undo-tree
 *.~undo-tree~# Added automatically by ‘eldev init’.
-/.eldev
+
 /Eldev-local
+.eldev
+*-autoloads.el
+*.elc

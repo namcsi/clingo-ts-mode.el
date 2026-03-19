@@ -32,15 +32,77 @@
 ;;; input language of the Potassco Answer Set Programming (ASP) system
 ;;; clingo.
 
+;;; The structure of the project and test fixtures was largely
+;;; inspired by neocaml: https://github.com/bbatsov/neocaml, with some
+;;; code being copied almost verbatim. Thank you for your work bbatsov!
+
 ;;; Code:
 
-(provide 'clingo-ts-mode)
+(require 'treesit)
 
+(defgroup clingo-ts-mode nil
+  "Major mode for editing clingo code with tree-sitter."
+  :prefix "clingo-ts-mode-"
+  :group 'languages
+  :link '(url-link :tag "GitHub" "https://github.com/namcsi/clingo-ts-mode.el")
+  :link '(emacs-commentary-link :tag "Commentary" "clingo-ts-mode"))
 
+(defcustom clingo-ts-mode-indent-offset 2
+  "Number of spaces for each indentation step in clingo-ts-mode."
+  :type 'natnum
+  :safe 'natnump
+  :package-version '(clingo-ts-mode . "0.1.0"))
+
+(defconst clingo-ts-mode-version "0.1.0")
+
+(defun clingo-ts-mode-version ()
+  "Display the current package version in the minibuffer.
+Fallback to value of `clingo-ts-mode-version' const when the package version is missing.
+When called from other Elisp code returns the version instead of
+displaying it."
+  (interactive)
+  (let ((pkg-version (package-get-version)))
+    (if (called-interactively-p 'interactively)
+        (if pkg-version
+            (message "clingo-ts-mode %s (package: %s)" clingo-ts-mode-version pkg-version)
+          (message "clingo-ts-mode %s" clingo-ts-mode-version))
+      (or pkg-version clingo-ts-mode-version))))
+
+(defconst clingo-ts-mode-grammar-recipe
+  '(clingo "https://github.com/potassco/tree-sitter-clingo"
+            "v1.0.4")
+  "Tree-sitter grammar recipe for clingo.
+Matches format expected by `treesit-language-source-alist'.")
+
+(defun clingo-ts-mode-install-grammar (&optional force)
+  "Install required language grammar if not already available.
+With prefix argument FORCE, reinstall grammar even if it is
+already installed.  This is useful after upgrading clingo to a
+version that requires a newer grammar."
+  (interactive "P")
+  (let ((grammar (car clingo-ts-mode-grammar-recipe)))
+    (when (or force (not (treesit-language-available-p grammar nil)))
+      (message "Installing %s tree-sitter grammar..." grammar)
+      ;; `treesit-language-source-alist' is dynamically scoped.
+      ;; Binding it in this let expression allows
+      ;; `treesit-install-language-grammar' to pick up the grammar recipes
+      ;; without modifying what the user has configured themselves.
+      (let ((treesit-language-source-alist `(,clingo-ts-mode-grammar-recipe)))
+	(treesit-install-language-grammar grammar)))))
+
+;;;###autoload
 (define-derived-mode clingo-ts-mode prog-mode "Clingo"
   "A mode for the clingo programming language."
+
+  (when-let* ((missing (not (treesit-language-available-p 'clingo)))
+	      (install (y-or-n-p "Clingo tree-sitter grammar is not installed. Install them now?")))
+		(clingo-ts-mode-install-grammar))
+
   (when (treesit-ready-p 'clingo)
     (setq-local
+
+      ;; font locking
+
       treesit-font-lock-settings
       (treesit-font-lock-rules
         :language 'clingo
@@ -279,7 +341,12 @@
 	(function builtin)
 	(string number constant variable)
 	(operator punctuation type))
+
+      ;; indentation
+
     )
     (treesit-major-mode-setup)))
+
+(provide 'clingo-ts-mode)
 
 ;;; clingo-ts-mode.el ends here

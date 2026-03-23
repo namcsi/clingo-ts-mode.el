@@ -90,21 +90,8 @@ version that requires a newer grammar."
       (let ((treesit-language-source-alist `(,clingo-ts-mode-grammar-recipe)))
 	(treesit-install-language-grammar grammar)))))
 
-;;;###autoload
-(define-derived-mode clingo-ts-mode prog-mode "Clingo"
-  "A mode for the clingo programming language."
-
-  (when-let* ((missing (not (treesit-language-available-p 'clingo)))
-	      (install (y-or-n-p "Clingo tree-sitter grammar is not installed. Install them now?")))
-		(clingo-ts-mode-install-grammar))
-
-  (when (treesit-ready-p 'clingo)
-    (setq-local
-
-      ;; font locking
-
-      treesit-font-lock-settings
-      (treesit-font-lock-rules
+(defvar clingo-ts-mode--font-lock-settings
+  (treesit-font-lock-rules
         :language 'clingo
 	:feature 'preprocessor
 	'(["#minimize"
@@ -125,6 +112,7 @@ version that requires a newer grammar."
 	   "#program"]
 	  @font-lock-preprocessor-face
 	  (include (identifier) @font-lock-preprocessor-face)
+	  (script language: (identifier) @font-lock-preprocessor-face)
 	  (program name: (identifier) @font-lock-preprocessor-face))
 
 	:language 'clingo
@@ -136,8 +124,7 @@ version that requires a newer grammar."
 	   (const_type)
 	   (theory_operator_arity)
 	   (theory_operator_associativity)]
-	  @font-lock-keyword-face
-	  (script language: (identifier) @font-lock-keyword-face))
+	  @font-lock-keyword-face)
 
 	:language 'clingo
 	:feature 'type
@@ -160,10 +147,25 @@ version that requires a newer grammar."
 
 	:language 'clingo
 	:feature 'comment
-	'([(line_comment)
-	   (block_comment)
-	   (doc_comment)]
+	'(([(line_comment)
+	    (block_comment)]
 	  @font-lock-comment-face)
+	  (doc_comment
+	   "%*!" @font-lock-doc-face
+	   predicate: (doc_predicate
+		       name: (identifier) @font-lock-function-call-face)
+	   "*%" @font-lock-doc-face)
+	  (doc_fragment_string) @font-lock-doc-face
+	  (doc_args "Args:" @font-lock-doc-markup-face)
+	  (doc_arg "-" @font-lock-doc-markup-face)
+	  (doc_arg ":" @font-lock-doc-markup-face)
+	  [(doc_fragment_emph)
+	  (doc_fragment_italic)
+	  (doc_fragment_bold)
+	  (doc_fragment_code)]
+	  @font-lock-doc-markup-face
+	  )
+
 
 	:language 'clingo
 	:feature 'punctuation
@@ -211,7 +213,8 @@ version that requires a newer grammar."
 
 	:language 'clingo
 	:feature 'string
-	'((string) @font-lock-string-face
+	'((string "\"" @font-lock-string-face)
+	  (string_fragment) @font-lock-string-face
 	  (fstring) @font-lock-string-face
 	  (escape_sequence) @font-lock-escape-face)
 
@@ -334,18 +337,38 @@ version that requires a newer grammar."
 
       	:language 'clingo
 	:feature 'builtin
-	'((boolean_constant) @font-lock-builtin-face))
+	'((boolean_constant) @font-lock-builtin-face)))
 
-      treesit-font-lock-feature-list
+;;;###autoload
+(define-derived-mode clingo-ts-mode prog-mode "Clingo"
+  "A mode for the clingo programming language."
+
+  (when-let* ((missing (not (treesit-language-available-p 'clingo)))
+	      (install (y-or-n-p "Clingo tree-sitter grammar is not installed. Install them now?")))
+		(clingo-ts-mode-install-grammar))
+
+  (when (treesit-ready-p 'clingo)
+
+    ;; Emacs 31+ uses treesit-primary-parser to identify the main parser
+    ;; when multiple parsers are active.
+    (let ((parser (treesit-parser-create 'clingo)))
+      (when (boundp 'treesit-primary-parser)
+        (setq-local treesit-primary-parser parser)))
+
+    ;; font locking
+    (setq-local treesit-font-lock-settings clingo-ts-mode--font-lock-settings)
+
+    (setq-local treesit-font-lock-feature-list
       '((preprocessor comment keyword)
 	(function builtin)
 	(string number constant variable)
-	(operator punctuation type))
+	(operator punctuation type)))
 
       ;; indentation
 
-    )
-    (treesit-major-mode-setup)))
+    (treesit-major-mode-setup)
+    ;; (font-lock-ensure)
+    ))
 
 (provide 'clingo-ts-mode)
 

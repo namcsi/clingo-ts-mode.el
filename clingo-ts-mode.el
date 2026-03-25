@@ -370,6 +370,9 @@ version that requires a newer grammar."
     ;; (font-lock-ensure)
     ))
 
+;;;###autoload
+(add-to-list 'auto-mode-alist '("\\.lp\\'" . clingo-ts-mode))
+
 (provide 'clingo-ts-mode)
 
 ;;; clingo-ts-mode.el ends here

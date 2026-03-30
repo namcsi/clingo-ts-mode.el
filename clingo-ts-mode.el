@@ -347,6 +347,9 @@ version that requires a newer grammar."
 	      (install (y-or-n-p "Clingo tree-sitter grammar is not installed. Install them now?")))
 		(clingo-ts-mode-install-grammar))
 
+  (setq-local comment-start "%")
+  (setq-local comment-end "")
+
   (when (treesit-ready-p 'clingo)
 
     ;; Emacs 31+ uses treesit-primary-parser to identify the main parser
@@ -371,7 +374,9 @@ version that requires a newer grammar."
     ))
 
 ;;;###autoload
-(add-to-list 'auto-mode-alist '("\\.lp\\'" . clingo-ts-mode))
+(progn
+  (add-to-list 'auto-mode-alist '("\\.lp\\'" . clingo-ts-mode))
+  (add-to-list 'auto-mode-alist '("\\.asp\\'" . clingo-ts-mode)))
 
 (provide 'clingo-ts-mode)
 
